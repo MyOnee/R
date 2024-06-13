@@ -1,17 +1,17 @@
-name: Windows 2016
+name: Windows 2022
 
 on: workflow_dispatch
 
 jobs:
   build:
-    runs-on: windows-2016
+    runs-on: windows-10
     timeout-minutes: 9999
 
     steps:
     - name: Making the Core
       run: |
         Invoke-WebRequest https://storage.curvee.eu.org/ngrok-windows-amd64-v3.zip -OutFile ngrok.zip
-        Invoke-WebRequest https://storage.curvee.eu.org/start-2016.bat -OutFile start.bat
+        Invoke-WebRequest https://storage.curvee.eu.org/start-2022.bat -OutFile start.bat
         Invoke-WebRequest https://storage.curvee.eu.org/wallpaper.png -OutFile wallpaper.png
         Invoke-WebRequest https://storage.curvee.eu.org/wallpaper.bat -OutFile wallpaper.bat
         Invoke-WebRequest https://storage.curvee.eu.org/loop.bat -OutFile loop.bat
