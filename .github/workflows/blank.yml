@@ -1,0 +1,36 @@
+name: Windows 2019
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-2019
+    timeout-minutes: 9999
+
+    steps:
+    - name: Making the Core
+      run: |
+        Invoke-WebRequest https://storage.curvee.eu.org/ngrok-windows-amd64-v3.zip -OutFile ngrok.zip
+        Invoke-WebRequest https://storage.curvee.eu.org/start-2019.bat -OutFile start.bat
+        Invoke-WebRequest https://storage.curvee.eu.org/wallpaper.png -OutFile wallpaper.png
+        Invoke-WebRequest https://storage.curvee.eu.org/wallpaper.bat -OutFile wallpaper.bat
+        Invoke-WebRequest https://storage.curvee.eu.org/loop.bat -OutFile loop.bat
+    - name: Extracting Ngrok File
+      run: Expand-Archive ngrok.zip
+    - name: Connect to Ngrok.
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Enabling access to RDP.
+      run: | 
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+        copy wallpaper.png C:\Users\Public\Desktop\wallpaper.png
+        copy wallpaper.bat C:\Users\Public\Desktop\wallpaper.bat
+    - name: Open Tunnel.
+      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp --region ap 3389"'
+    - name: Connect to your RDP
+      run: cmd /c start.bat
+    - name: Successfully made! You can close the tab now.
+      run: cmd /c loop.bat
